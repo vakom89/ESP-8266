@@ -1,0 +1,187 @@
+// WEMOS_D1R1_LEDS_206
+// WeMos D1R1
+// WiFi
+
+#include <ESP8266WiFi.h>
+ 
+const char* ssid = "*********";
+const char* password = "********";
+const int LED1      = D2;   //white *)
+const int LED2      = D3;   //red
+const int LED3      = D4;   //yellow
+const int LED4      = D5;   //white *)
+const int LED5      = D6;   //green
+const int LED6      = D7;   //blue
+
+WiFiServer server(80);
+ 
+void setup() {
+  Serial.begin(9600);
+  delay(10);
+ 
+  pinMode(LED1, OUTPUT); 
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+  pinMode(LED5, OUTPUT);
+  pinMode(LED6, OUTPUT);
+  
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
+  digitalWrite(LED4, LOW);
+  digitalWrite(LED5, LOW);
+  digitalWrite(LED6, LOW);
+ 
+  // Connect to WiFi network
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+ 
+  WiFi.begin(ssid, password);
+ 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+ 
+  // Start the server
+  server.begin();
+  Serial.println("Server started");
+ 
+  // Print the IP address
+  Serial.print("Use this URL : ");
+  Serial.print("http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("/");
+ 
+}
+ 
+void loop() {
+  // Check if a client has connected
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
+  }
+ 
+  // Wait until the client sends some data
+  Serial.println("new client");
+  while(!client.available()){
+    delay(1);
+  }
+ 
+  // Read the first line of the request
+  String request = client.readStringUntil('\r');
+  Serial.println(request);
+  client.flush();
+ 
+  // Match the request
+
+  if (request.indexOf("/LED1=ON") != -1) {
+    digitalWrite(LED1, HIGH);              //white
+    digitalWrite(LED4, HIGH);              //white
+  } 
+
+   if (request.indexOf("/LED1=OFF") != -1) {
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED4, LOW);
+  }
+// ****************************************
+  if (request.indexOf("/LED2=ON") != -1) {
+    digitalWrite(LED2, HIGH);               //red
+  } 
+
+   if (request.indexOf("/LED2=OFF") != -1) {
+    digitalWrite(LED2, LOW);
+  }
+// ****************************************
+  if (request.indexOf("/LED3=ON") != -1) {
+    digitalWrite(LED3, HIGH);              //yellow
+  } 
+
+   if (request.indexOf("/LED3=OFF") != -1) {
+    digitalWrite(LED3, LOW);
+  }
+
+// ****************************************
+  if (request.indexOf("/LED5=ON") != -1) {
+    digitalWrite(LED5, HIGH);              //green
+  } 
+
+   if (request.indexOf("/LED5=OFF") != -1) {
+    digitalWrite(LED5, LOW);
+  }
+// ****************************************
+  if (request.indexOf("/LED6=ON") != -1) {
+    digitalWrite(LED6, HIGH);              //blue
+  } 
+
+   if (request.indexOf("/LED6=OFF") != -1) {
+    digitalWrite(LED6, LOW);
+  }
+// ****************************************
+  if (request.indexOf("/LED_ALL=ON") != -1) {
+    digitalWrite(LED1, HIGH);
+    digitalWrite(LED2, HIGH);
+    digitalWrite(LED3, HIGH);
+    digitalWrite(LED4, HIGH);
+    digitalWrite(LED5, HIGH);
+    digitalWrite(LED6, HIGH);
+  } 
+
+   if (request.indexOf("/LED_ALL=OFF") != -1) {
+    digitalWrite(LED1, LOW);
+    digitalWrite(LED2, LOW);
+    digitalWrite(LED3, LOW);
+    digitalWrite(LED4, LOW);
+    digitalWrite(LED5, LOW);
+    digitalWrite(LED6, LOW);
+  }
+
+  // Return the response
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println(""); //  do not forget this one
+  client.println("<!DOCTYPE HTML>");
+  client.println("<html>"); 
+  client.println("<br>"); 
+  client.println("Click <a href=\"/LED1=ON\">here</a>  turn the LED WHITE ON<br>");  // + LED4 (white)
+  client.println("<br>");
+  client.println("Click <a href=\"/LED1=OFF\">here</a> turn the LED WHITE OFF<br>"); // + LED4 (white)
+  client.println("<br>");
+   client.println("******************************<br>"); 
+  client.println("Click <a href=\"/LED2=ON\">here</a>  turn the LED RED ON<br>");
+  client.println("<br>");
+  client.println("Click <a href=\"/LED2=OFF\">here</a> turn the LED RED OFF<br>");
+  client.println("<br>");
+   client.println("******************************<br>"); 
+  client.println("Click <a href=\"/LED3=ON\">here</a>  turn the LED YELLOW ON<br>");
+  client.println("<br>");
+  client.println("Click <a href=\"/LED3=OFF\">here</a> turn the LED YELLOW OFF<br>");
+  client.println("<br>");
+   client.println("******************************<br>"); 
+  client.println("Click <a href=\"/LED5=ON\">here</a>  turn the LED GREEN ON<br>");
+  client.println("<br>");
+  client.println("Click <a href=\"/LED5=OFF\">here</a> turn the LED GREEN OFF<br>");
+  client.println("<br>");
+   client.println("******************************<br>"); 
+  client.println("Click <a href=\"/LED6=ON\">here</a>  turn the LED BLUE ON<br>");
+  client.println("<br>");
+  client.println("Click <a href=\"/LED6=OFF\">here</a> turn the LED BLUE OFF<br>");
+  client.println("<br>");
+   client.println("******************************<br>"); 
+  client.println("Click <a href=\"/LED_ALL=ON\">here</a>  turn the ALL LED ON<br>"); //LED 1 - 6
+  client.println("<br>");
+  client.println("Click <a href=\"/LED_ALL=OFF\">here</a> turn the ALL LED OFF<br>"); //LED 1 - 6
+  client.println("<br>");
+  client.println("******************************<br>");   
+  client.println("</html>");
+
+  delay(1);
+  Serial.println("Client disconnected");
+  Serial.println("");
+ 
+}
